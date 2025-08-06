@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Item List with Details</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
   <style>
     body {
       background: linear-gradient(120deg, #d60270 0%, #9b4f96 50%, #0038a8 100%);
@@ -20,6 +21,7 @@
       border-radius: 18px;
       box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
       padding: 32px 40px;
+      margin: 50px 10px;
       display: flex;
       gap: 40px;
       max-width: 700px;
@@ -48,13 +50,16 @@
       background: linear-gradient(90deg, #d52d00 0%, #ef7627 30%, #d162a4 60%, #b55690 100%);
       color: #fff;
       font-weight: 600;
+      border-radius: 5px;
     }
     .item:hover {
       background: linear-gradient(90deg, #d52d0066 0%, #ef762766 30%, #d162a466 60%, #b5569066 100%);
     }
     .item.completed {
       text-decoration: line-through;
-      background: linear-gradient(90deg, #ff5a36 0%, #ffb07c 30%, #e6a6c9 60%, #d89fc2 100%);
+      background: linear-gradient(90deg, #ff7a5c 0%, #ffd1a6 30%, #f2cbe2 60%, #e7cbe0 100%);
+      color: #fff;
+      border-radius: 5px;
     }
     .details {
       flex: 1;
@@ -92,7 +97,7 @@
     }
     @media (max-width: 500px) {
       .container {
-        padding: 18px;
+        padding: 24px 18px;
         gap: 18px;
         max-width: 300px;
         flex-direction: column;
@@ -168,8 +173,7 @@
         };
         btn.setAttribute('tabindex', 0);
         itemList.appendChild(btn);
-        // if (idx === selectedIdx) itemList.appendChild(renderDetails());
-    });
+      });
     }
 
     function renderDetails() {
@@ -192,6 +196,13 @@
     // Initial render
     renderItems();
     renderDetails();
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log('Service Worker Registered'));
+    }
   </script>
 </body>
 </html>
