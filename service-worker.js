@@ -1,5 +1,5 @@
 const CACHE_NAME = 'weekend-tasks-v1';
-const urlsToCache = ['/', '/items.html', '/icon.png'];
+const urlsToCache = ['/', '/index.html', '/icon.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
