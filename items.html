@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Item List with Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: linear-gradient(120deg, #d60270 0%, #9b4f96 50%, #0038a8 100%);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 20px 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .container {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+      padding: 32px 40px;
+      display: flex;
+      gap: 40px;
+      max-width: 700px;
+      width: 100%;
+    }
+    .item-list {
+      min-width: 180px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .item {
+      padding: 8px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      font-size: 1.08rem;
+      color: #444;
+      border: none;
+      background: none;
+      text-align: left;
+      outline: none;
+      width: 100%;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    .item.selected {
+      background: linear-gradient(90deg, #d52d00 0%, #ef7627 30%, #d162a4 60%, #b55690 100%);
+      color: #fff;
+      font-weight: 600;
+    }
+    .item:hover {
+      background: linear-gradient(90deg, #d52d0066 0%, #ef762766 30%, #d162a466 60%, #b5569066 100%);
+    }
+    .item.completed {
+      text-decoration: line-through;
+      background: linear-gradient(90deg, #ff5a36 0%, #ffb07c 30%, #e6a6c9 60%, #d89fc2 100%);
+    }
+    .details {
+      flex: 1;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .details-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #d52d00;
+    }
+    .details-desc {
+      font-size: 1.08rem;
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    .details-btn {
+      background: #ef7627;
+      color: #fff;
+      border: none;
+      margin-top: 10px;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-weight: 600;
+      font-size: 1.08rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .details-btn:hover {
+      background: #dd6e23;
+    }
+    @media (max-width: 500px) {
+      .container {
+        padding: 18px;
+        gap: 18px;
+        max-width: 300px;
+        flex-direction: column;
+      }
+      .item-list {
+        flex-direction: column;
+        gap: 10px;
+        overflow-x: unset;
+        width: 100%;
+      }
+      .details {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="item-list" id="itemList">
+      <!-- Items will be rendered here -->
+    </div>
+    <div class="details" id="details">
+      <!-- Details will be rendered here -->
+    </div>
+  </div>
+  <script>
+    const items = [
+      {
+        title: "Laundry",
+        desc: "Wash, dry, and fold any laundry in the basket.",
+        completed: false
+      },
+      {
+        title: "Bathroom Deep Cleaning",
+        desc: "Clean the bathroom from top to bottom, including the sink and shower. Clean Mercy's litterbox.",
+        completed: false
+      },
+      {
+        title: "Kitchen Counter Cleaning",
+        desc: "Clean the counter top, including under and behind any appliances. No 3Dness allowed.",
+        completed: false
+      },
+      {
+        title: "Dusting",
+        desc: "Dust all surfaces, including the vinyl player, bookshelf, and any other surfaces.",
+        completed: false
+      },
+      {
+        title: "Vacuuming",
+        desc: "Vacuum the floors, including the bathroom, kitchen, and any other rooms.",
+        completed: false
+      }
+    ];
+
+    const itemList = document.getElementById('itemList');
+    const details = document.getElementById('details');
+    let selectedIdx = 0;
+
+    function renderItems() {
+      itemList.innerHTML = '';
+      items.forEach((item, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'item' + (idx === selectedIdx ? ' selected' : '') + (item.completed ? ' completed' : '');
+        btn.textContent = item.title;
+        btn.onclick = () => {
+          if (selectedIdx === idx) {
+            selectedIdx = -1;
+          } else {
+            selectedIdx = idx;
+          }
+          renderItems();
+          renderDetails();
+        };
+        btn.setAttribute('tabindex', 0);
+        itemList.appendChild(btn);
+        // if (idx === selectedIdx) itemList.appendChild(renderDetails());
+    });
+    }
+
+    function renderDetails() {
+      const item = items[selectedIdx];
+      const details = document.getElementById('details');
+      details.innerHTML = `
+        <div class="details-title">${item.title}</div>
+        <div class="details-desc">${item.desc}</div>
+      `;
+      const btn = document.createElement('button');
+      btn.className = 'details-btn';
+      btn.textContent = item.completed ? 'Undo' : 'Complete';
+      btn.onclick = () => {
+        item.completed = !item.completed;
+        renderItems();
+      };
+      details.appendChild(btn);
+    }
+
+    // Initial render
+    renderItems();
+    renderDetails();
+  </script>
+</body>
+</html>

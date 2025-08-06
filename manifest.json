@@ -1,0 +1,24 @@
+{
+  "name": "Weekend Tasks",
+  "short_name": "Weekend Tasks",
+  "description": "A list of tasks to complete over the weekend.",
+  "lang": "en-US",
+  "orientation": "portrait-primary",
+  "categories": ["productivity", "task-management", "weekend-tasks"],
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0038a8",
+  "theme_color": "#d60270",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
