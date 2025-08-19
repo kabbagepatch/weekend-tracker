@@ -124,6 +124,7 @@
     </div>
   </div>
   <script>
+    const socket = new WebSocket("wss://tracker-services-472591136365.us-central1.run.app");
     const items = [
       {
         title: "Laundry",
@@ -156,6 +157,16 @@
     const details = document.getElementById('details');
     let selectedIdx = 0;
 
+    socket.addEventListener("message", (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type === "update") {
+        const item = items.find(i => i.title === data.title);
+        item.completed = data.completed;
+        renderItems();
+      }
+    });
+
     function renderItems() {
       itemList.innerHTML = '';
       items.forEach((item, idx) => {
@@ -185,6 +196,7 @@
       btn.onclick = () => {
         item.completed = !item.completed;
         renderItems();
+        socket.send(JSON.stringify({ app: "weekend-tracker", type: "toggle", title: item.title, completed: item.completed }));
       };
       details.appendChild(btn);
     }
