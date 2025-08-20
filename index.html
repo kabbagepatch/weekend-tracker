@@ -176,11 +176,11 @@
         btn.onclick = () => {
           selectedIdx = idx;
           renderItems();
-          renderDetails();
         };
         btn.setAttribute('tabindex', 0);
         itemList.appendChild(btn);
       });
+      renderDetails();
     }
 
     function renderDetails() {
