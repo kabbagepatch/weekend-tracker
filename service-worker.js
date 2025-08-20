@@ -1,6 +1,8 @@
 const CACHE_NAME = 'weekend-tasks-v1';
 const urlsToCache = ['/', '/index.html', '/icon.png'];
 
+const version = '1.0.0';
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
