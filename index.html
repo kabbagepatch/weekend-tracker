@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Item List with Details</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
+  <!-- <link rel="manifest" href="manifest.json"> -->
   <style>
     body {
       background: linear-gradient(120deg, #d60270 0%, #9b4f96 50%, #0038a8 100%);
@@ -124,48 +124,72 @@
     </div>
   </div>
   <script>
-    const socket = new WebSocket("wss://tracker-services-472591136365.us-central1.run.app");
-    const items = [
-      {
-        title: "Laundry",
-        desc: "Wash, dry, and fold any laundry in the basket.",
-        completed: false
-      },
-      {
-        title: "Bathroom Deep Cleaning",
-        desc: "Clean the bathroom from top to bottom, including the sink and shower. Clean Mercy's litterbox.",
-        completed: false
-      },
-      {
-        title: "Kitchen Counter Cleaning",
-        desc: "Clean the counter top, including under and behind any appliances. No 3Dness allowed.",
-        completed: false
-      },
-      {
-        title: "Dusting",
-        desc: "Dust all surfaces, including the vinyl player, bookshelf, and any other surfaces.",
-        completed: false
-      },
-      {
-        title: "Vacuuming",
-        desc: "Vacuum the floors, including the bathroom, kitchen, and any other rooms.",
-        completed: false
+    // const socket = new WebSocket("wss://tracker-services-472591136365.us-central1.run.app");
+    // const items = [
+    //   {
+    //     title: "Laundry",
+    //     desc: "Wash, dry, and fold any laundry in the basket.",
+    //     completed: false
+    //   },
+    //   {
+    //     title: "Bathroom Deep Cleaning",
+    //     desc: "Clean the bathroom from top to bottom, including the sink and shower. Clean Mercy's litterbox.",
+    //     completed: false
+    //   },
+    //   {
+    //     title: "Kitchen Counter Cleaning",
+    //     desc: "Clean the counter top, including under and behind any appliances. No 3Dness allowed.",
+    //     completed: false
+    //   },
+    //   {
+    //     title: "Dusting",
+    //     desc: "Dust all surfaces, including the vinyl player, bookshelf, and any other surfaces.",
+    //     completed: false
+    //   },
+    //   {
+    //     title: "Vacuuming",
+    //     desc: "Vacuum the floors, including the bathroom, kitchen, and any other rooms.",
+    //     completed: false
+    //   }
+    // ];
+    
+    const evtSource = new EventSource("https://habitsapi-426700.uc.r.appspot.com/weekend/events");
+    let items = [];
+    evtSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("Event received:", data);
+      if (data.type === "init" || data.type === "update") {
+        items = data.tasks;
+        renderItems();
+        renderDetails();
       }
-    ];
+    };
+
+    evtSource.onerror = (e) => {
+      console.warn("SSE connection lost. Reconnecting...");
+      // evtSource.close();
+      // setTimeout(connect, retryDelay);
+
+      // // exponential backoff up to 30s
+      // retryDelay = Math.min(retryDelay * 2, 30000);
+    };
+    evtSource.onopen = () => {
+      console.log("SSE connection established.");
+    };
 
     const itemList = document.getElementById('itemList');
     const details = document.getElementById('details');
     let selectedIdx = 0;
 
-    socket.addEventListener("message", (event) => {
-      const data = JSON.parse(event.data);
+    // socket.addEventListener("message", (event) => {
+    //   const data = JSON.parse(event.data);
 
-      if (data.type === "update") {
-        const item = items.find(i => i.title === data.title);
-        item.completed = data.completed;
-        renderItems();
-      }
-    });
+    //   if (data.type === "update") {
+    //     const item = items.find(i => i.title === data.title);
+    //     item.completed = data.completed;
+    //     renderItems();
+    //   }
+    // });
 
     function renderItems() {
       itemList.innerHTML = '';
@@ -184,6 +208,9 @@
     }
 
     function renderDetails() {
+      if (items.length === 0 || selectedIdx < 0 || selectedIdx >= items.length) {
+        return;
+      }
       const item = items[selectedIdx];
       const details = document.getElementById('details');
       details.innerHTML = `
@@ -194,9 +221,15 @@
       btn.className = 'details-btn';
       btn.textContent = item.completed ? 'Undo' : 'Complete';
       btn.onclick = () => {
-        item.completed = !item.completed;
-        renderItems();
-        socket.send(JSON.stringify({ app: "weekend-tracker", type: "toggle", title: item.title, completed: item.completed }));
+        // item.completed = !item.completed;
+        // renderItems();
+        console.log("Toggling item:", item.title, "Completed:", !item.completed);
+        fetch("https://habitsapi-426700.uc.r.appspot.com/weekend/toggle", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: item.title, completed: !item.completed }),
+        });
+        // socket.send(JSON.stringify({ app: "weekend-tracker", type: "toggle", title: item.title, completed: item.completed }));
       };
       details.appendChild(btn);
     }
@@ -206,10 +239,10 @@
     renderDetails();
 
     // Service Worker registration
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(() => console.log('Service Worker Registered'));
-    }
+    // if ('serviceWorker' in navigator) {
+    //   navigator.serviceWorker.register('service-worker.js')
+    //     .then(() => console.log('Service Worker Registered'));
+    // }
   </script>
 </body>
 </html>
