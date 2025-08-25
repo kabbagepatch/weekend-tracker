@@ -92,8 +92,25 @@
       cursor: pointer;
       transition: background 0.2s, color 0.2s;
     }
-    .details-btn:hover {
+    .details-btn:hover, .reset-btn:hover {
       background: #dd6e23;
+    }
+    .reset-btn-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+    .reset-btn {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ef7627;
+      color: #fff;
+      border-radius: 5px;
+      border: none;
     }
     @media (max-width: 500px) {
       .container {
@@ -115,6 +132,17 @@
   </style>
 </head>
 <body>
+  <div class="reset-btn-container">
+    <button
+      class="reset-btn"
+      onclick="resetTasks()"
+      title="Reset"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24">
+        <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
   <div class="container">
     <div class="item-list" id="itemList">
       <!-- Items will be rendered here -->
@@ -124,34 +152,9 @@
     </div>
   </div>
   <script>
-    const socket = new WebSocket("wss://tracker-services-472591136365.us-central1.run.app");
-    const items = [
-      {
-        title: "Laundry",
-        desc: "Wash, dry, and fold any laundry in the basket.",
-        completed: false
-      },
-      {
-        title: "Bathroom Deep Cleaning",
-        desc: "Clean the bathroom from top to bottom, including the sink and shower. Clean Mercy's litterbox.",
-        completed: false
-      },
-      {
-        title: "Kitchen Counter Cleaning",
-        desc: "Clean the counter top, including under and behind any appliances. No 3Dness allowed.",
-        completed: false
-      },
-      {
-        title: "Dusting",
-        desc: "Dust all surfaces, including the vinyl player, bookshelf, and any other surfaces.",
-        completed: false
-      },
-      {
-        title: "Vacuuming",
-        desc: "Vacuum the floors, including the bathroom, kitchen, and any other rooms.",
-        completed: false
-      }
-    ];
+    // const socket = new WebSocket("wss://tracker-services-472591136365.us-central1.run.app");
+    const socket = new WebSocket("ws://localhost:8080");
+    let items = [];
 
     const itemList = document.getElementById('itemList');
     const details = document.getElementById('details');
@@ -160,9 +163,15 @@
     socket.addEventListener("message", (event) => {
       const data = JSON.parse(event.data);
 
-      if (data.type === "update") {
-        const item = items.find(i => i.title === data.title);
-        item.completed = data.completed;
+      if (data.type === "init") {
+        items = data.items;
+        renderItems();
+      } else if (data.type === "update") {
+        const item = items.find(i => i.id === data.item.id);
+        item.completed = data.item.completed;
+        renderItems();
+      } else if (data.type === "reset") {
+        items.forEach(item => item.completed = false);
         renderItems();
       }
     });
@@ -196,14 +205,16 @@
       btn.onclick = () => {
         item.completed = !item.completed;
         renderItems();
-        socket.send(JSON.stringify({ app: "weekend-tracker", type: "toggle", title: item.title, completed: item.completed }));
+        socket.send(JSON.stringify({ app: "weekend-tracker", type: "update", item }));
       };
       details.appendChild(btn);
     }
 
-    // Initial render
-    renderItems();
-    renderDetails();
+    function resetTasks() {
+      items.forEach(item => item.completed = false);
+      renderItems();
+      socket.send(JSON.stringify({ app: "weekend-tracker", type: "reset" }));
+    }
 
     // Service Worker registration
     if ('serviceWorker' in navigator) {
