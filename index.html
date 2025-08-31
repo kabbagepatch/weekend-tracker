@@ -100,10 +100,13 @@
       bottom: 20px;
       right: 20px;
       z-index: 1000;
+      display: flex;
+      flex-direction: row;
+      gap: 5px;
     }
     .reset-btn {
-      width: 30px;
-      height: 30px;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -114,6 +117,7 @@
     }
     @media (max-width: 500px) {
       .container {
+        margin: 0;
         padding: 24px 18px;
         gap: 18px;
         max-width: 300px;
@@ -135,6 +139,17 @@
   <div class="reset-btn-container">
     <button
       class="reset-btn"
+      onclick="sendNotification()"
+      title="Notification"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-labelledby="title" role="img" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <title id="title">Notification</title>
+        <path d="M6 10a6 6 0 1 1 12 0v4.2c0 .5.2 1 .6 1.4l.4.4a1 1 0 0 1-.7 1.7H5.7a1 1 0 0 1-.7-1.7l.4-.4c.4-.4.6-.9.6-1.4z"/>
+        <path d="M10 18a2 2 0 0 0 4 0"/>
+      </svg>
+    </button>
+    <button
+      class="reset-btn"
       onclick="resetTasks()"
       title="Reset"
     >
@@ -142,7 +157,7 @@
         <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
-  </div>
+    </div>
   <div class="container">
     <div class="item-list" id="itemList">
       <!-- Items will be rendered here -->
@@ -169,6 +184,9 @@
       } else if (data.type === "update") {
         const item = items.find(i => i.id === data.item.id);
         item.completed = data.item.completed;
+        if (item.completed) {
+          sendNotification(item);
+        }
         renderItems();
       } else if (data.type === "reset") {
         items.forEach(item => item.completed = false);
@@ -216,10 +234,31 @@
       socket.send(JSON.stringify({ app: "weekend-tracker", type: "reset" }));
     }
 
+    function sendNotification(item) {
+      enableNotifications().then(() => {
+        new Notification("Task Completed!", {
+          body: item.title,
+          icon: "icon.png",
+        });
+      });
+    }
+
+    function enableNotifications() {
+      if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+      }
+    }
+
     // Service Worker registration
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(() => console.log('Service Worker Registered'));
+      navigator.serviceWorker.register('./service-worker.js').then(
+        (registration) => {
+          console.log("Service worker registered successfully:", registration)
+        },
+        (error) => {
+          console.error(`Service worker registration failed: ${error}`)
+        }
+      );
     }
   </script>
 </body>
