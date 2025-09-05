@@ -1,7 +1,7 @@
 const CACHE_NAME = 'weekend-tasks-v1';
 const urlsToCache = ['/', '/index.html', '/icon.png'];
 
-const version = '1.2.5';
+const version = '1.2.6';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -21,7 +21,6 @@ self.addEventListener('fetch', (event) => {
 
 self.addEventListener("push", (event) => {
   const data = event.data.json();
-  console.log('Push received:', data);
   if (!data.completed) return;
 
   event.waitUntil(

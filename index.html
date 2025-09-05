@@ -139,7 +139,7 @@
   <div class="reset-btn-container">
     <button
       class="reset-btn"
-      onclick="enableNotifications()"
+      onclick="enableNotifications(true)"
       title="Notification"
     >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-labelledby="title" role="img" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -261,11 +261,14 @@
       });
     }
 
-    async function enableNotifications() {
+    async function enableNotifications(push) {
       console.log('Enabling notifications...');
       if (Notification.permission !== "granted") {
         await setUpPushPermission();
         return Notification.requestPermission();
+      }
+      if (push) {
+        await setUpPushPermission();
       }
       return Promise.resolve();
     }
