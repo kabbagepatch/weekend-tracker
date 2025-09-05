@@ -139,7 +139,7 @@
   <div class="reset-btn-container">
     <button
       class="reset-btn"
-      onclick="enableNotifications(true)"
+      onclick="enableNotifications()"
       title="Notification"
     >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-labelledby="title" role="img" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -204,7 +204,7 @@
         console.log("Socket closed, reconnecting in 2s...");
         setTimeout(() => {
           socket = getSocket();
-        }, 2000);
+        }, 5000);
       });
 
       return s;
@@ -261,14 +261,11 @@
       });
     }
 
-    async function enableNotifications(push) {
+    async function enableNotifications() {
       console.log('Enabling notifications...');
+      await setUpPushPermission();
       if (Notification.permission !== "granted") {
-        await setUpPushPermission();
         return Notification.requestPermission();
-      }
-      if (push) {
-        await setUpPushPermission();
       }
       return Promise.resolve();
     }
@@ -310,7 +307,7 @@
         });
         const url = 'https://tracker-services-472591136365.us-central1.run.app/weekend-tasks/subscribe';
         // const url = 'http://localhost:8080/weekend-tasks/subscribe';
-        fetch(url, {
+        await fetch(url, {
           method: 'POST',
           body: JSON.stringify(subscription),
           headers: {
