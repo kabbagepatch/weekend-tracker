@@ -267,9 +267,9 @@
       });
     }
 
-    async function enableNotifications() {
+    async function enableNotifications(forceUpdate = false) {
       console.log('Enabling notifications...');
-      await setUpPushPermission();
+      await setUpPushPermission(forceUpdate);
       if (Notification.permission !== 'granted') {
         return Notification.requestPermission();
       }
@@ -303,10 +303,10 @@
       return outputArray;
     }
 
-    const setUpPushPermission = async () => {
+    const setUpPushPermission = async (forceUpdate = false) => {
       const registration = await navigator.serviceWorker.ready;
       let subscription = await registration.pushManager.getSubscription()
-      if (!subscription) {
+      if (!subscription || forceUpdate) {
         subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array('BDnnhj3f_NUSODvaws9hjNL0eF4srOP8TS4f3Zgo0CX0ygQzH58kdHHOfjKJ2h4nOy3G5IoghbWdP0rFPRSj8Qg')
