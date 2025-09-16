@@ -268,12 +268,17 @@
     }
 
     async function enableNotifications(forceUpdate = false) {
-      console.log('Enabling notifications...');
-      await setUpPushPermission(forceUpdate);
-      if (Notification.permission !== 'granted') {
-        return Notification.requestPermission();
+      try {
+        console.log('Enabling notifications...');
+        await setUpPushPermission(forceUpdate);
+        if (Notification.permission !== 'granted') {
+          return Notification.requestPermission();
+        }
+        return Promise.resolve();
+      } catch (error) {
+        console.error('Error enabling notifications:', error);
+        return Promise.resolve();
       }
-      return Promise.resolve();
     }
 
     // Service Worker registration
